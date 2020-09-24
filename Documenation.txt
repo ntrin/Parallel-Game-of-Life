@@ -1,0 +1,162 @@
+Documentation
+Game of Life with MPI
+
+Class name: Life
+
+	Constructor:
+Life(int rows, int cols, int* values)
+inputs:
+	rows: integer
+		rows of the grid
+	cols: integer
+		columns of the grid
+	values: integer pointer
+		fill the object with starting grid
+
+Default destructor (not declared)
+~Life();
+
+
+	Public Methods -------------------
+
+void write_settings(int p, int p_rows, int p_cols, int steps)
+writes variety of game settings to file to be read by post processing script (python)
+inputs:
+	p: integer
+		number of processors
+	p_rows: integer
+		rows of the processor grid
+	p_cols: integer
+		columns of the procesor grid
+	steps: integer
+		number of steps of life to be executed
+
+
+void write_sub_settings(int sub_rows, int sub_cols, int id)
+writes indivudual processor settings to files containing the processor id
+inputs:
+	sub_rows: integer
+		grid rows controlled by the individual processor
+	sub_cols: integer
+		grid columns controlled by the individual processor
+	id: integer
+		processor number
+
+
+void display(int id)
+writes grid to file for each processor
+inputs:
+	id: integer
+		processor number
+
+
+void screen()
+writes grid to screen
+
+
+Life* pad()
+adds a layer of 0 around input Life object
+input:
+	Life object to be padded
+returns:
+	pointer to padded Life object
+
+
+Life* unpad()
+removes outer layer around input Life object
+input:
+	Life object to be unpadded
+returns:
+	pointer to unpadded Life object
+
+
+void randomize(double prob)
+introduces live or dead cells to the input Life object according to percentage
+inputs:
+	Life object
+	prob: double
+		probability that a cell is alive or dead
+
+
+int rule(Life& uni, int s)
+finds the neighbors of a cell and continues the game by killing, reviving or doing nothing a the cell
+inputs:
+	Life object
+	uni: Life object
+		Life object that is being played, should be padded
+	s: integer
+		element of the values of the uni Life object
+returns:
+	integer
+		0 if the cell is dead at the next iteration, 1 if the cell is alive at the next iteration
+
+
+void life(Life& matrix, Life& init)
+plays life on the Life object by calling rule on every value of a padded Life object
+inputs:
+	matrix: Life object
+		Starting Life object which is not altered in any way
+	init: Life object
+		Life object which plays the game and changes throughout
+
+
+void find_dimensions(int p, int& p_rows, int& p_cols, int& sub_rows, int& sub_cols, int id)
+computes the most effective disposition of processors on the grid and gives each processor the most square domain possible
+inputs:
+	p: integer
+		number of processors
+	p_rows: integer
+		number of rows in processor grid
+	p_cols: integer
+		number of columns in processor grid
+	sub_rows: integer
+		grid rows controlled by the individual processor
+	sub_cols: integer
+		grid columns controlled by the individual processor
+	id: integer
+		processor number
+
+
+void id_to_index(int id, int& id_row, int& id_col, int p_cols)
+computes the coordinates of each processor within the determined processor grid by find_dimensions
+inputs:
+	id: integer
+		processor number
+	id_row: integer
+		row of processor
+	id_col: integer
+		column of processor
+	p_cols: integer
+		number of columns in processor grid
+
+
+int id_from_index(int id_row, int id_col, int p_rows, int p_cols, bool periodic)
+computes the surrounding id of the neighboring processors, -1 means that the processor is at a boundary
+input:
+	id_row: integer
+		row of processor
+	id_col: integer
+		column of processor
+	p_rows: integer
+		number of rows in processor grid	
+	p_cols: integer
+		number of columns in processor grid
+	periodic: boolean
+		whether a periodic boundary should be considered, the boundary processors in the periodic case are neighbors with other boundary processors or themselves
+
+
+void make_send_datatypes(int p, int p_rows, int p_cols, int id_row, int id_col, bool periodic)
+creates MPI datatypes for recieving and sending data from cores peer to peer, then sends the data types accordingly
+inputs:
+	p: integer
+		number of processors
+	p_rows: integer
+		number of rows in processor grid
+	p_cols: integer
+		number of columns in processor grid
+	id_row: integer
+		row of processor
+	id_col: integer
+		column of processor
+	periodic: boolean
+		if true, boundary is periodic and wraps around
